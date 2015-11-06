@@ -2,6 +2,7 @@ package com.swpoker.util.sql;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import java.util.List;
 
@@ -30,7 +31,8 @@ public class MainSQLClause extends SQLClause{
 		
 		this.flag=1;
 		this.sb.append(" "+sql);
-		for(Object arg : args ){this._args.add(arg);}
+		//for(Object arg : args ){this._args.add(arg);}
+		this._args.addAll(Arrays.asList(SQLUtil.dealParameters(args)));
 		return this;
 	}	
 	

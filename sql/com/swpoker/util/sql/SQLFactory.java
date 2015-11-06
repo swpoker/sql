@@ -28,7 +28,7 @@ public class SQLFactory {
 	}
 	
 	public static WhereClause WHERE(){
-		return WhereClause.WhereWhereClause();
+		return WhereClause.Where();
 	}	
 		
 	
@@ -44,29 +44,31 @@ public class SQLFactory {
 	 * @return
 	 */
 	public static SQLClause IN(String sql,Object ... args){
-		 	MainSQLClause rs = MainSQLClause.getInstance();
+		 	MainSQLClause rs = SQL();
 			if(sql == null){
 				return rs;
-			}					
-			if(args == null || args.length == 0){
+			}			
+			Object [] _args = SQLUtil.dealParameters(args);
+			if(_args == null || _args.length == 0){
 				return rs;
 			}			
 			String _s="%?";
 			if(sql.contains(_s) == false){
 				return rs;
-			}		
-			List _args = new ArrayList(); 
+			}											
+			
+			List _argrs = new ArrayList(); 
 			int _sl = _s.length();
 			for(int i=sql.indexOf(_s);i>-1;i=sql.indexOf(_s,i+_sl)){
-				_args.addAll(Arrays.asList(args));
+				_argrs.addAll(Arrays.asList(_args));				
 			}														
-			rs.append(sql.replace(_s, String.format(" %s ", SQLFactory.ArgSign(args.length))), _args.toArray());			
+			rs.append(sql.replace(_s, String.format(" %s ", SQLFactory.ArgSign(_args.length))), _argrs.toArray());			
 			return rs;
 	 }
 	
 	
 	public static SQLClause UNION(SQLClause ... sqllist){
-		MainSQLClause rs = MainSQLClause.getInstance();
+		MainSQLClause rs = SQL();
 		if(sqllist == null || sqllist.length == 0){
 			return rs ;
 		}
@@ -78,7 +80,18 @@ public class SQLFactory {
 			args.addAll(Arrays.asList(sc.args()));
 		}		
 				
-		return rs.append(SQLUtil.join(sql.toArray()," union " ), args.toArray());
+		return rs.append(SQLUtil.join(sql.toArray()," UNION " ), args.toArray());
 	}
+	
+	public static SQLClause COUNT(SQLClause sqlclause){
+		return  SQL().test(sqlclause!= null && sqlclause.isEmpty() == false)
+		.append(
+			 SQL().append("SELECT COUNT(1) FROM (")
+			.append(sqlclause)
+			.append(")")
+		)
+		;
+	}
+	
 	
 }

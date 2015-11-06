@@ -18,19 +18,19 @@ public class WhereClause extends SQLClause{
 	
 	
 	
-	public static WhereClause EmptyWhereClause(){
-		return new WhereClause(WhereClauseType.EMPTY);
-	}
-	
-	public static WhereClause WhereWhereClause(){
+	public static WhereClause Where(){
 		return new WhereClause(WhereClauseType.WHERE);
-	}
+	}	
 	
-	public static WhereClause AndWhereClause(){
+	public static WhereClause Empty(){
+		return new WhereClause(WhereClauseType.EMPTY);
+	}	
+	
+	public static WhereClause And(){
 		return new WhereClause(WhereClauseType.AND);
 	}
 	
-	public static WhereClause OrWhereClause(){
+	public static WhereClause Or(){
 		return new WhereClause(WhereClauseType.OR);
 	}	
 	
@@ -44,10 +44,33 @@ public class WhereClause extends SQLClause{
 		}
 	}
 	
+	private boolean isParenthesis(){
+		switch (this.wct){
+		case  EMPTY :return true;
+		case  WHERE :return false;
+		case  AND :return  true;
+		case  OR :return  true;
+		default :return  true;
+		}		
+	} 
+	
+	private String preParenthesis(){
+		if(isParenthesis()){
+			return " ( ";
+		}
+		return "";
+	}
+	
+	private String subParenthesis(){
+		if(isParenthesis()){
+			return " ) ";
+		}
+		return "";		
+	}
 	
 	
 	String fisrtAppend(){
-		return (" "+_getWhereClauseType(this.wct));
+		return (" "+_getWhereClauseType(this.wct))+preParenthesis();
 	}
 	
 	
@@ -119,13 +142,16 @@ public class WhereClause extends SQLClause{
 	}
 
 	@Override
-	public Object[] args() {
-		
+	public Object[] args() {		
 		return msql.args();
 	}	
 	
 	@Override
 	public String sql(){
+		if(msql.isEmpty()){
+			return msql.sql();
+		}
+		msql.append(subParenthesis());
 		return msql.sql();
 	}
 	
